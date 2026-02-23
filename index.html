@@ -1,11 +1,332 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta http-equiv="refresh" content="0;url=/city/">
-<title>SheUnbox</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>SheUnbox — 拆开你自己</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  background: #0a0a0f;
+  color: #e8e6f0;
+  min-height: 100dvh;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* noise texture overlay */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E");
+  background-size: 256px 256px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ambient glow */
+.glow-1 {
+  position: fixed;
+  top: -20%;
+  right: -10%;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(108, 92, 231, 0.15) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.glow-2 {
+  position: fixed;
+  bottom: -10%;
+  left: -10%;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(255, 107, 157, 0.1) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.container {
+  position: relative;
+  z-index: 2;
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 0 24px;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* header */
+.header {
+  padding-top: 80px;
+  padding-bottom: 48px;
+  text-align: center;
+}
+
+.brand {
+  font-size: 14px;
+  letter-spacing: 6px;
+  text-transform: uppercase;
+  color: rgba(162, 155, 254, 0.6);
+  margin-bottom: 24px;
+}
+
+.title {
+  font-family: 'Ma Shan Zheng', 'STKaiti', 'KaiTi', cursive;
+  font-size: 56px;
+  font-weight: 400;
+  line-height: 1.3;
+  margin-bottom: 28px;
+  background: linear-gradient(135deg, #f0eef8 0%, #c4b5fd 35%, #f9a8d4 65%, #fda4af 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: 6px;
+}
+
+.subtitle {
+  font-size: 14px;
+  line-height: 2;
+  color: rgba(232, 230, 240, 0.4);
+  max-width: 280px;
+  margin: 0 auto;
+  letter-spacing: 1px;
+}
+
+/* divider */
+.divider {
+  width: 32px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(162, 155, 254, 0.4), transparent);
+  margin: 0 auto 48px;
+}
+
+/* section label */
+.section-label {
+  font-size: 11px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: rgba(162, 155, 254, 0.4);
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+/* product cards */
+.cards {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  flex: 1;
+}
+
+.card {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  background: linear-gradient(135deg, rgba(108, 92, 231, 0.08) 0%, rgba(255, 107, 157, 0.05) 100%);
+  border: 1px solid rgba(162, 155, 254, 0.1);
+  border-radius: 24px;
+  padding: 32px 28px;
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, rgba(196, 181, 253, 0.4) 30%, rgba(249, 168, 212, 0.3) 70%, transparent 100%);
+}
+
+.card::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -20%;
+  width: 200px;
+  height: 200px;
+  background: radial-gradient(circle, rgba(249, 168, 212, 0.06) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.card:active {
+  transform: scale(0.98);
+  background: linear-gradient(135deg, rgba(108, 92, 231, 0.12) 0%, rgba(255, 107, 157, 0.08) 100%);
+}
+
+.card-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(108, 92, 231, 0.15) 0%, rgba(249, 168, 212, 0.1) 100%);
+  border: 1px solid rgba(162, 155, 254, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  margin-bottom: 20px;
+}
+
+.card-title {
+  font-size: 19px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #f0eef8;
+  letter-spacing: 0.5px;
+}
+
+.card-desc {
+  font-size: 13px;
+  line-height: 1.8;
+  color: rgba(232, 230, 240, 0.4);
+}
+
+.card-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.card-tag {
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  background: rgba(162, 155, 254, 0.1);
+  color: rgba(196, 181, 253, 0.7);
+  letter-spacing: 0.5px;
+}
+
+.card-arrow {
+  position: absolute;
+  right: 28px;
+  bottom: 32px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(162, 155, 254, 0.08);
+  border: 1px solid rgba(162, 155, 254, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(196, 181, 253, 0.5);
+  font-size: 16px;
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card:active .card-arrow {
+  background: rgba(162, 155, 254, 0.15);
+  color: rgba(196, 181, 253, 0.8);
+  transform: translateX(3px);
+}
+
+/* coming soon card */
+.card-soon {
+  border-style: dashed;
+  border-color: rgba(255, 255, 255, 0.04);
+  background: transparent;
+  text-align: center;
+  padding: 24px;
+}
+
+.card-soon::before {
+  display: none;
+}
+
+.card-soon-text {
+  font-size: 13px;
+  color: rgba(232, 230, 240, 0.2);
+  letter-spacing: 2px;
+}
+
+/* footer */
+.footer {
+  padding: 60px 0 40px;
+  text-align: center;
+}
+
+.footer-line {
+  width: 20px;
+  height: 1px;
+  background: rgba(162, 155, 254, 0.2);
+  margin: 0 auto 20px;
+}
+
+.footer-text {
+  font-size: 12px;
+  color: rgba(232, 230, 240, 0.2);
+  line-height: 1.8;
+  letter-spacing: 1px;
+}
+
+/* hover for desktop */
+@media (hover: hover) {
+  .card:hover {
+    background: linear-gradient(135deg, rgba(108, 92, 231, 0.12) 0%, rgba(255, 107, 157, 0.08) 100%);
+    border-color: rgba(162, 155, 254, 0.2);
+    transform: translateY(-3px);
+    box-shadow: 0 12px 40px rgba(108, 92, 231, 0.12), 0 0 0 1px rgba(162, 155, 254, 0.08);
+  }
+  .card:hover .card-arrow {
+    background: rgba(162, 155, 254, 0.15);
+    color: rgba(196, 181, 253, 0.8);
+    transform: translateX(3px);
+  }
+}
+</style>
 </head>
 <body>
-<p>跳转中...</p>
+
+<div class="glow-1"></div>
+<div class="glow-2"></div>
+
+<div class="container">
+  <header class="header">
+    <div class="brand">SheUnbox</div>
+    <h1 class="title">拆开你自己</h1>
+    <p class="subtitle">每个女生都是一个未拆封的盲盒<br>答案在你自己身上</p>
+  </header>
+
+  <div class="divider"></div>
+
+  <div class="section-label">探索入口</div>
+
+  <div class="cards">
+    <a class="card" href="/city/">
+      <div class="card-icon">&#127961;</div>
+      <div class="card-title">你的灵魂城市</div>
+      <div class="card-desc">30 道情景题，找到最懂你的那座城</div>
+      <div class="card-meta">
+        <span class="card-tag">3 分钟</span>
+        <span class="card-tag">20 座城市</span>
+      </div>
+      <span class="card-arrow">&rsaquo;</span>
+    </a>
+
+    <div class="card card-soon">
+      <span class="card-soon-text">更多测试 即将上线 ...</span>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="footer-line"></div>
+    <p class="footer-text">不被定义 但值得被看见</p>
+  </footer>
+</div>
+
 </body>
 </html>
